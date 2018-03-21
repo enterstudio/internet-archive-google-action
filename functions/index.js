@@ -24,8 +24,7 @@ const dialog = require('./src/dialog');
 const {storeAction} = require('./src/state/actions');
 const strings = require('./src/strings');
 const {debug, warning} = require('./src/utils/logger')('ia:index');
-
-let packageJSON = require('./package.json');
+const packageJSON = require('./package.json');
 
 let ARCHIVE_HOST = 'web.archive.org';
 let imageURL = 'https://archive.org/services/img/';
