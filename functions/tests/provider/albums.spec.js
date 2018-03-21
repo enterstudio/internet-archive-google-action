@@ -21,7 +21,7 @@ describe('collection', () => {
     });
 
     it('should fetch items of collection', () => {
-      return albumsProvider.fetchAlbums('OfARevolution', {limit: 3})
+      return albumsProvider.fetchAlbumsByCreatorId('OfARevolution', {limit: 3})
         .then(albums => {
           const items = albums.items;
           expect(items[0]).to.have.property('identifier', 'oar00-09-27');
@@ -44,6 +44,11 @@ describe('collection', () => {
 
       return albumsProvider.fetchAlbumDetails('gd73-06-10.sbd.hollister.174.sbeok.shnf')
         .then(album => {
+          expect(album).to.have.property('collections').to.have.members([
+            'GratefulDead',
+            'etree',
+            'stream_only',
+          ]);
           expect(album).to.have.property('creator', 'Grateful Dead');
           expect(album).to.have.property('year', 1973);
           expect(album).to.have.property('coverage', 'Washington, DC');
@@ -75,6 +80,12 @@ describe('collection', () => {
             .to.have.property('songs')
             .to.have.length(2);
 
+          expect(album).to.have.property('collections').to.have.members([
+            'georgeblood',
+            '78rpm_kusf',
+            '78rpm',
+            'audio_music',
+          ]);
           expect(album.songs[0]).to.have.property('title', `(When Your Heart's On Fire) Smoke Gets in Your Eyes`);
           expect(album.songs[1]).to.have.property('title', `The Continental (You Kiss While You're Dancing)`);
         });
@@ -102,7 +113,7 @@ describe('collection', () => {
             'GET'
           )).to.be.equal(
             'https://web.archive.org/advancedsearch.php?q=' +
-            'collection:(collection-1)' +
+            'coverage:(*) AND collection:(collection-1)' +
             '&fl[]=identifier,coverage,title,year' +
             '&sort[]=downloads+desc' +
             '&rows=3' +
@@ -123,7 +134,7 @@ describe('collection', () => {
             'GET'
           )).to.be.equal(
             'https://web.archive.org/advancedsearch.php?q=' +
-            '(collection:(collection-1) OR collection:(collection-2))' +
+            'coverage:(*) AND (collection:(collection-1) OR collection:(collection-2))' +
             '&fl[]=identifier,coverage,title,year' +
             '&sort[]=downloads+desc' +
             '&rows=3' +

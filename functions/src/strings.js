@@ -22,11 +22,50 @@ module.exports = {
   },
 
   dialog: {
-    playSong: {
-      description: 'Playing track - {{title}}{{#coverage}}, {{coverage}}{{/coverage}}{{#year}}, {{year}}{{/year}}',
-      title: 'Playing track{{#track}} number - {{track}}{{/track}}{{^track}}{{title}}{{/track}}',
+    playSong: [{
+      /**
+       * choose this one if song is from collection 'etree'
+       */
+      condition: 'includes(collections, "etree")',
+
+      description: 'Playing track - {{title}} of {{creator}}{{#coverage}} in {{coverage}}{{/coverage}}{{#year}}, {{year}}{{/year}}',
+      // We should "say" something or play a sound between songs
+      // official response:
+      // https://github.com/actions-on-google/actions-on-google-nodejs/issues/103#issuecomment-373231791
+      //
+      // we can choose any sound from here
+      // https://developers.google.com/actions/tools/sound-library/
+      // [!] but we should use it for Google actions only
+      speech: `
+        <audio src="https://actions.google.com/sounds/v1/foley/cassette_tape_button.ogg"
+               clipBegin="4.5s"
+               clipEnd="5.5s"
+               soundLevel="10db">
+          <desc>Playing track - Breezin&amp;#39;, Northampton, MA, 2010</desc>
+        </audio>
+      `,
+      title: '{{title}} by {{creator}}{{#year}}, {{year}}{{/year}}',
       suggestionLink: 'on Archive.org',
-    }
+    }, {
+      description: 'Playing track - {{title}} of {{creator}}{{#year}} {{year}}{{/year}}',
+      // We should "say" something or play a sound between songs
+      // official response:
+      // https://github.com/actions-on-google/actions-on-google-nodejs/issues/103#issuecomment-373231791
+      //
+      // we can choose any sound from here
+      // https://developers.google.com/actions/tools/sound-library/
+      // [!] but we should use it for Google actions only
+      speech: `
+        <audio src="https://actions.google.com/sounds/v1/foley/cassette_tape_button.ogg"
+               clipBegin="4.5s"
+               clipEnd="5.5s"
+               soundLevel="10db">
+          <desc>Playing track - Breezin&amp;#39;, Northampton, MA, 2010</desc>
+        </audio>
+      `,
+      title: '{{title}} by {{creator}} {{year}}',
+      suggestionLink: 'on Archive.org',
+    }],
   },
 
   /**
@@ -45,7 +84,7 @@ module.exports = {
       slots: [
         'collectionId',
         'coverage',
-        'creatorId',
+        'creator',
         'order',
         'subject',
         'year',
@@ -75,9 +114,7 @@ module.exports = {
     musicQuery: [{
       name: 'george blood collection',
 
-      conditions: [
-        'collectionId == "georgeblood"'
-      ],
+      condition: 'collectionId == "georgeblood"',
 
       slots: [
         'collectionId',
@@ -110,8 +147,8 @@ module.exports = {
        * to check our undestanding
        */
       acknowledges: [
-        'Ok! Lets go with {{__resolvers.creator.title}} performer!',
-        `You've selected {{__resolvers.alias.collectionId}} collection.`,
+        'Ok! Lets go with {{creator}} performer!',
+        `You've selected {{alias.collectionId}}.`,
       ],
 
       prompts: [{
@@ -126,7 +163,7 @@ module.exports = {
          * slots which we need for fulfillement
          */
         prompts: [
-          'What genre of music would you like to listen to? Please select a topic like {{__resolvers.short-options.suggestions}}?',
+          'What genre of music would you like to listen to? Please select a topic like {{short-options.suggestions}}?',
         ],
 
         /**
@@ -152,7 +189,7 @@ module.exports = {
        */
       slots: [
         'collectionId',
-        'creatorId',
+        'creator',
         'coverage',
         'year',
       ],
@@ -165,7 +202,7 @@ module.exports = {
         random: {
           defaults: {
             collectionId: {skip: true},
-            creatorId: {skip: true},
+            creator: {skip: true},
             coverage: {skip: true},
             year: {skip: true},
             order: 'random',
@@ -181,8 +218,8 @@ module.exports = {
         '{{coverage}} - good place!',
         '{{coverage}} {{year}} - great choice!',
         '{{year}} - it was excellent year!',
-        'Ok! Lets go with {{__resolvers.creator.title}} band!',
-        `You've selected {{__resolvers.alias.collectionId}} collection.`,
+        'Ok! Lets go with {{creator}}!',
+        `You've selected {{alias.collectionId}}.`,
       ],
 
       /**
@@ -197,7 +234,7 @@ module.exports = {
         ],
 
         prompts: [
-          'Would you like to listen to music from our collections of {{__resolvers.short-options.suggestions}}?',
+          'Would you like to listen to music from our collections of {{short-options.suggestions}}?',
         ],
 
         /**
@@ -212,11 +249,11 @@ module.exports = {
          * prompt for single slot
          */
         requirements: [
-          'creatorId'
+          'creator'
         ],
 
         prompts: [
-          'What artist would you like to listen to? For example, {{__resolvers.short-options.suggestions}}?',
+          'What artist would you like to listen to? For example, {{short-options.suggestions}}?',
         ],
 
         /**
@@ -249,7 +286,7 @@ module.exports = {
         ],
 
         prompts: [
-          'Ok, {{__resolvers.creator.title}} has played in {{coverage}} sometime {{__resolvers.years-interval.suggestions}}. Do you have a particular year in mind?',
+          'Ok, {{creator}} has played in {{coverage}} sometime {{years-interval.suggestions}}. Do you have a particular year in mind?',
         ],
       }],
 
@@ -266,6 +303,15 @@ module.exports = {
     }, {
       speech: "I'm sorry I'm having trouble here. Maybe we should try this again later.",
     }],
+
+    titleOption: {
+      false: {
+        speech: `Ok, we will mute song's title`,
+      },
+      true: {
+        speech: `Excellent! I'll be saying title to each song`,
+      },
+    },
 
     unknown: [{
       speech: "I'm not sure what you said. Can you repeat that?",
